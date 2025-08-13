@@ -1,0 +1,122 @@
+/* Full screen background */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Arial', sans-serif;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #0a2342;
+}
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.login-box {
+  background-color: #1c1e26;
+  padding: 40px 30px; /* Balanced padding for inner spacing */
+  border-radius: 15px; /* Softer edges */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  width: 400px; /* Medium width for balance */
+  max-width: 90%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center-align contents */
+  gap: 20px; /* Consistent spacing between all elements */
+}
+
+h2 {
+  color: #fff;
+  font-size: 26px; /* Slightly smaller than before */
+}
+
+img.drone-animation {
+  width: 100px; /* Perfect size for balance */
+  height: auto;
+  margin-bottom: 15px; /* Spacing between image and heading */
+}
+
+label {
+  color: #d1d1d1;
+  text-align: left;
+  margin-bottom: 10px; /* Spacing between label and input */
+  font-size: 14px; /* Compact label size */
+  width: 100%;
+}
+
+input {
+  width: 100%;
+  padding: 14px; /* Comfortable padding */
+  font-size: 14px; /* Compact input text */
+  margin-bottom: 12px; /* Spacing between inputs */
+  border: 1px solid #444;
+  border-radius: 6px; /* Softer input edges */
+  background-color: #2a2e35;
+  color: white;
+}
+
+input:focus {
+  outline: none;
+  border-color: #0056b3;
+}
+
+button {
+  width: 100%;
+  padding: 12px; /* Comfortable padding for button */
+  background-color: #0056b3;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 16px; /* Balanced text size */
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #00429d;
+}
+
+.error {
+  color: #ff3333;
+}
+
+.register-link {
+  color: #00aaff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.register-link:hover {
+  text-decoration: underline;
+}
+
+/* Center the animation */
+.drone-animation {
+  animation: bounce 2s infinite; /* Adds a bounce effect */
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px); /* Bounce height */
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .login-box {
+    width: 90%;
+    padding: 20px; /* Adjusted for smaller screens */
+  }
+}

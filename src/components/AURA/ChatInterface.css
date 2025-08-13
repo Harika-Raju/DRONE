@@ -1,0 +1,204 @@
+/* Chat Interface Container */
+.chat-interface {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  /* Animated Bot Icon */
+  .chat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #34495E 0%, #2C3E50 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .chat-icon svg {
+    width: 30px;
+    height: 30px;
+    color: white;
+    transition: transform 0.3s ease;
+  }
+  
+  .chat-icon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+  }
+  
+  .chat-icon:hover svg {
+    transform: scale(1.1);
+  }
+  
+  /* Chat Panel */
+  .chat-panel {
+    position: fixed;
+    right: 20px;
+    bottom: 90px;
+    width: 380px;
+    height: 600px;
+    min-height: 400px;
+    max-height: calc(100vh - 100px);
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    display: flex;
+    flex-direction: column;
+    transform: scale(0.95);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    resize: both;
+    overflow: auto;
+    min-width: 320px;
+    max-width: 90vw;
+  }
+  
+  .chat-panel.open {
+    transform: scale(1);
+    opacity: 1;
+    pointer-events: all;
+  }
+  
+  /* Chat Header */
+  .chat-header {
+    background: linear-gradient(135deg, #34495E 0%, #2C3E50 100%);
+    color: white;
+    padding: 16px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+  }
+  
+  .aura-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .aura-logo svg {
+    width: 24px;
+    height: 24px;
+    color: white;
+  }
+  
+  .header-text {
+    flex: 1;
+  }
+  
+  .header-text h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  
+  .header-text small {
+    font-size: 12px;
+    opacity: 0.9;
+  }
+  
+  /* Close Button */
+  .close-button {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .close-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .close-button svg {
+    width: 16px;
+    height: 16px;
+    color: white;
+  }
+  
+  /* Chat Input Area */
+  .chat-input {
+    padding: 16px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    background: white;
+    border-radius: 0 0 12px 12px;
+  }
+  
+  .input-wrapper {
+    flex: 1;
+    position: relative;
+  }
+  
+  .chat-input textarea {
+    width: 100%;
+    padding: 12px;
+    padding-right: 40px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    resize: none;
+    min-height: 48px;
+    max-height: 150px;
+    outline: none;
+    font-size: 14px;
+    line-height: 1.5;
+    transition: border-color 0.2s ease;
+  }
+  
+  .chat-input textarea:focus {
+    border-color: #34495E;
+    box-shadow: 0 0 0 2px rgba(52, 73, 94, 0.1);
+  }
+  
+  .send-button {
+    background: #34495E;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .send-button:hover {
+    background: #2C3E50;
+    transform: translateY(-1px);
+  }
+  
+  .send-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .send-button svg {
+    width: 20px;
+    height: 20px;
+  }

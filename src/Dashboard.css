@@ -1,0 +1,285 @@
+/* Base resets */
+* {
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+html, body, #root {
+  height: 100vh !important;
+  overflow: hidden !important;
+}
+
+/* Container */
+.dashboard-container {
+  width: 100vw !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+  background: transparent !important;
+}
+
+/* Header */
+.header {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 50px !important;
+  background-color: #34495E !important;
+  color: white !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0 20px !important;
+  z-index: 100 !important;
+}
+
+/* Menu Icon */
+.menu-icon {
+  font-size: 24px !important;
+  cursor: pointer !important;
+  width: 30px !important;
+  height: 30px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: none !important;
+  border: none !important;
+  color: white !important;
+}
+
+/* Logout Button */
+.logout-button {
+  background-color: #E74C3C !important;
+  color: white !important;
+  border: none !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-size: 0.85em !important;
+  min-width: 50px !important;
+  max-width: 80px !important;
+  height: 26px !important;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed !important;
+  top: 0 !important;
+  left: -250px !important;
+  width: 250px !important;
+  height: 100vh !important;
+  background-color: #2C3E50 !important;
+  color: white !important;
+  padding: 20px !important;
+  transition: left 0.3s ease !important;
+  z-index: 1000 !important;
+  overflow-y: auto !important;
+}
+
+/* Close Button */
+.sidebar .close-btn {
+  position: absolute !important;
+  top: 10px !important;
+  left: 100px;
+  right: 0px !important;
+  font-size: 20px !important;
+  color: white !important;
+  background: none !important;
+  border: none !important;
+  cursor: pointer !important;
+  z-index: 1101 !important;
+}
+
+.sidebar.open {
+  left: 0 !important;
+}
+
+.sidebar h2 {
+  font-size: 1.2em !important;
+  margin-bottom: 20px !important;
+}
+
+.sidebar ul {
+  list-style: none !important;
+  padding: 0 !important;
+}
+
+.sidebar ul li {
+  margin-bottom: 20px !important;
+}
+
+.sidebar ul li a {
+  color: white !important;
+  font-size: 1em !important;
+  text-decoration: none !important;
+  display: block !important;
+  padding: 8px 12px !important;
+  border-radius: 4px !important;
+  transition: background 0.3s !important;
+}
+
+.sidebar ul li a:hover {
+  background-color: #34495E !important;
+}
+
+/* Main Content */
+.main-content {
+  position: relative !important;
+  width: 100% !important;
+  height: 100vh !important;
+  background: transparent !important;
+  transition: margin-left 0.3s !important;
+}
+
+.main-content.expanded {
+  margin-left: 250px !important;
+  width: calc(100% - 250px) !important;
+}
+
+/* Dashboard */
+.dashboard {
+  position: fixed !important;
+  top: 50px !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  overflow: hidden !important;
+  background: transparent !important;
+}
+
+/* Mission Map Container */
+.mission-map {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: transparent !important;
+}
+
+/* Map Title */
+.mission-map h3 {
+  height: 40px !important;
+  line-height: 40px !important;
+  padding: 0 15px !important;
+  margin: 0 !important;
+  background-color: white !important;
+  color: #2C3E50 !important;
+}
+
+/* Map Container */
+.map-container {
+  position: absolute !important;
+  top: 40px !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 100px !important; /* Match the info bar height */
+  background: transparent !important;
+}
+
+/* Map Element */
+.map-container > div,
+.map-container iframe,
+.map-container > * {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Info Bar */
+.map-info {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 100px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 0 20px !important;
+  background-color: rgba(236, 240, 241, 0.95) !important;
+  border-top: 1px solid #ddd !important;
+  z-index: 10 !important;
+}
+
+.map-info span {
+  padding: 8px 16px !important;
+  font-size: 1em !important;
+  background-color: #2C3E50 !important;
+  color: white !important;
+  border-radius: 4px !important;
+  line-height: 1.4 !important;
+}
+
+/* Dispatch Button */
+.dispatch-button {
+  position: absolute !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background-color: #27AE60 !important;
+  color: white !important;
+  border: none !important;
+  padding: 12px 50px !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  font-size: 1.4em !important;
+  height: 60px !important;
+  font-weight: bold !important;
+  transition: background-color 0.2s !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+}
+
+.dispatch-button:hover {
+  background-color: #219A52 !important;
+}
+
+/* Google Maps Specific Overrides */
+.gm-style {
+  position: absolute !important;
+  height: 100% !important;
+  width: 100% !important;
+}
+
+.gm-style > div {
+  height: 100% !important;
+}
+
+/* Search Box */
+.search-box {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px;
+  font-size: 16px;
+  width: 300px;
+  height: 35px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  background-color: white;
+  z-index: 20;
+  color: black;
+}
+
+/* Mission Status */
+.mission-status {
+  position: absolute !important;
+  top: 60px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background-color: rgba(44, 62, 80, 0.9) !important;
+  color: white !important;
+  padding: 8px 16px !important;
+  border-radius: 4px !important;
+  z-index: 30 !important;
+}
