@@ -3,10 +3,8 @@ from pydantic import BaseModel
 from dronekit import connect, VehicleMode, LocationGlobalRelative
 import time
 from fastapi.middleware.cors import CORSMiddleware
-
-import socket
+from pymavlink import mavutil
 import threading
-import json
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -20,20 +18,29 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Connect to the drone
+# Connect to the drone via DroneKit
 try:
-    connection_string = "udp:127.0.0.1:14550"  # Modify with your actual connection string
+    connection_string = "/dev/ttyUSB0"  # Update to your FC port if using USB
     vehicle = connect(connection_string, baud=57600, wait_ready=True, heartbeat_timeout=60)
-    print("Drone connected successfully.")
+    print("Drone connected successfully via DroneKit.")
 except Exception as e:
     print("Failed to connect to the drone:", e)
     vehicle = None
+
+# --- Optional: also connect via pymavlink directly ---
+try:
+    mav = mavutil.mavlink_connection("/dev/ttyUSB0", baud=57600)
+    mav.wait_heartbeat()
+    print(f"Heartbeat received from system {mav.target_system}")
+except Exception as e:
+    print("Failed to connect via MAVLink:", e)
+    mav = None
 
 # Data models
 class Coordinates(BaseModel):
     latitude: float
     longitude: float
-    altitude: float = None  # Optional for general coordinates
+    altitude: float = None  # Optional
 
 class RectangleBounds(BaseModel):
     top_left: Coordinates
@@ -41,37 +48,34 @@ class RectangleBounds(BaseModel):
 
 latest_coords: Coordinates | None = None
 
-def udp_listener(host: str = "0.0.0.0", port: int = 9999):
-    global latest_coords, vehicle
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.bind((host, port))
-    print(f"[UDP] Listening on {host}:{port}")
-    while True:
-        try:
-            data, addr = sock.recvfrom(4096)
-            payload = data.decode("utf-8", errors="ignore")
-            msg = json.loads(payload)
-            lat = float(msg["latitude"])
-            lon = float(msg["longitude"])
-            alt = float(msg.get("altitude") or 10.0)
+# --- MAVLink message handler ---
+def handle_mavlink_coordinate(lat, lon, alt):
+    global vehicle
+    if vehicle is not None:
+        target_location = LocationGlobalRelative(lat, lon, alt)
+        print(f"[Backend] simple_goto -> {target_location}")
+        vehicle.simple_goto(target_location)
+    else:
+        print("[Backend] Vehicle not connected; skipping goto.")
 
-            print(f"[UDP] Received from {addr}: lat={lat}, lon={lon}, alt={alt}")
-            latest_coords = Coordinates(latitude=lat, longitude=lon, altitude=alt)
+# Example: function to read from pymavlink (optional)
+def mavlink_listener():
+    global mav
+    while mav is not None:
+        msg = mav.recv_match(type='SET_POSITION_TARGET_GLOBAL_INT', blocking=True)
+        if msg:
+            lat = msg.lat / 1e7
+            lon = msg.lon / 1e7
+            alt = msg.alt
+            print(f"[MAVLink] Received lat={lat}, lon={lon}, alt={alt}")
+            handle_mavlink_coordinate(lat, lon, alt)
 
-            if vehicle is not None:
-                target_location = LocationGlobalRelative(lat, lon, alt)
-                print(f"[UDP] simple_goto -> {target_location}")
-                vehicle.simple_goto(target_location)
-            else:
-                print("[UDP] Vehicle not connected; skipping goto.")
-        except Exception as e:
-            print(f"[UDP] Error handling packet: {e}")
-
-@app.on_event("startup")
-def start_udp_thread():
-    t = threading.Thread(target=udp_listener, kwargs={"host": "0.0.0.0", "port": 9999}, daemon=True)
+# Start MAVLink listener thread
+if mav is not None:
+    t = threading.Thread(target=mavlink_listener, daemon=True)
     t.start()
 
+# --- DroneKit flight functions ---
 def arm_and_takeoff(target_altitude):
     if vehicle is None:
         raise HTTPException(status_code=500, detail="Drone not connected")
@@ -98,6 +102,7 @@ def arm_and_takeoff(target_altitude):
             break
         time.sleep(1)
 
+# Utility: distance in meters
 def get_distance_meters(location1, location2):
     dlat = location2.lat - location1.lat
     dlong = location2.lon - location1.lon
@@ -108,84 +113,51 @@ def move_within_rectangle(top_left, bottom_right, altitude):
     if vehicle is None:
         raise HTTPException(status_code=500, detail="Drone not connected")
 
-    print("Starting grid traversal")
-    step_distance = 0.0002  # Increased step size (approx. 22 meters)
+    step_distance = 0.0002
     current_lat = top_left.latitude
     current_lon = top_left.longitude
-
-    # Define direction flag to track movement
-    moving_forward = True  # Start by moving left to right
-    max_retry = 10  # Maximum retries if drone doesn't reach target
+    moving_forward = True
+    max_retry = 10
     retry_count = 0
 
     while current_lat >= bottom_right.latitude:
         if moving_forward:
-            # Move from left to right along the current latitude
             while current_lon < bottom_right.longitude:
                 target_location = LocationGlobalRelative(current_lat, current_lon, altitude)
-                print(f"Moving to: {target_location}")
                 vehicle.simple_goto(target_location)
-
                 retry_count = 0
-                # Wait until drone reaches target
                 while True:
                     distance = get_distance_meters(vehicle.location.global_relative_frame, target_location)
-                    if distance < 5:  # Target reached within 5 meters
-                        print(f"Reached target at lat: {current_lat}, lon: {current_lon}")
+                    if distance < 5:
                         break
-
-                    # If it's taking too long to reach the target, retry or move to the next waypoint
                     if retry_count >= max_retry:
-                        print(f"Retrying target at lat: {current_lat}, lon: {current_lon}")
-                        vehicle.simple_goto(target_location)  # Try moving again
+                        vehicle.simple_goto(target_location)
                         retry_count = 0
-
                     retry_count += 1
                     time.sleep(1)
-
-                # Move horizontally to the right
                 current_lon += step_distance
-
         else:
-            # Move from right to left along the current latitude
             while current_lon > top_left.longitude:
                 target_location = LocationGlobalRelative(current_lat, current_lon, altitude)
-                print(f"Moving to: {target_location}")
                 vehicle.simple_goto(target_location)
-
                 retry_count = 0
-                # Wait until drone reaches target
                 while True:
                     distance = get_distance_meters(vehicle.location.global_relative_frame, target_location)
-                    if distance < 5:  # Target reached within 5 meters
-                        print(f"Reached target at lat: {current_lat}, lon: {current_lon}")
+                    if distance < 5:
                         break
-
-                    # If it's taking too long to reach the target, retry or move to the next waypoint
                     if retry_count >= max_retry:
-                        print(f"Retrying target at lat: {current_lat}, lon: {current_lon}")
-                        vehicle.simple_goto(target_location)  # Try moving again
+                        vehicle.simple_goto(target_location)
                         retry_count = 0
-
                     retry_count += 1
                     time.sleep(1)
-
-                # Move horizontally to the left
                 current_lon -= step_distance
-
-        # Once we reach the end of the row, move vertically to the next row
         if current_lat > bottom_right.latitude:
-            current_lat -= step_distance  # Move downward in the grid
+            current_lat -= step_distance
         else:
-            current_lat += step_distance  # Move upward for reverse zigzag
-
-        # Reverse the direction for the next row
+            current_lat += step_distance
         moving_forward = not moving_forward
-        print(f"Completed row, now at latitude: {current_lat}, longitude: {current_lon}")
 
-    print("Grid traversal complete")
-
-# Dispatch endpoint for rectangle area
+# --- FastAPI endpoint ---
 @app.post("/drone/dispatch/rectangle")
 async def dispatch_drone_rectangle(bounds: RectangleBounds):
     if vehicle is None:
@@ -194,19 +166,12 @@ async def dispatch_drone_rectangle(bounds: RectangleBounds):
     top_left = bounds.top_left
     bottom_right = bounds.bottom_right
 
-    print(f"Dispatching drone within bounds: Top Left: {top_left}, Bottom Right: {bottom_right}")
-
-    # Arm and take off
-    arm_and_takeoff(10)  # Set the altitude as required (e.g., 10 meters)
-
-    # Move within the rectangle
+    arm_and_takeoff(10)
     move_within_rectangle(top_left, bottom_right, 10)
 
-    # Return to home
     print("Returning to home position")
     vehicle.mode = VehicleMode("RTL")
-
-    while not vehicle.location.global_relative_frame.alt <= 1:  # Ensure drone lands safely
+    while not vehicle.location.global_relative_frame.alt <= 1:
         time.sleep(1)
 
     vehicle.close()
